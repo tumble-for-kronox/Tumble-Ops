@@ -1,0 +1,19 @@
+grafana:
+  testFramework:
+    enabled: false
+
+  service:
+    type: NodePort
+
+  admin:
+    existingSecret: "grafana-admin"
+    userKey: admin-user
+    passwordKey: admin-password
+
+  serviceMonitor:
+    enabled: false
+    path: /metrics
+    namespace: default
+    interval: 30s
+    scheme: http
+    scrapeTimeout: 30s

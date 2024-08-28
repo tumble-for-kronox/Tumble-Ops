@@ -1,3 +1,4 @@
 [submodule "TumbleBackend"]
 	path = TumbleBackend
 	url = git@github.com:BlieNuckel/TumbleBackend.git
+	branch = feat/k8s

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tumble-backend-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tumble-backend
+  template:
+    metadata:
+      labels:
+        app: tumble-backend
+    spec:
+      containers:
+        - name: tumble-backend
+          image: advee/tumble:1.0.0
+          ports:
+            - containerPort: 7036
+          # env:
+          #   - name: ASPNETCORE_ENVIRONMENT
+          #     value: "Kubernetes"
+          #   - name: HTTP_PROXY
+          #     value: "http://172.23.32.1:8080" # mitmproxy
+          #   - name: HTTPS_PROXY
+          #     value: "http://172.23.32.1:8080"
+          #   - name: NO_PROXY
+          #     value: "localhost,127.0.0.1"
+          volumeMounts:
+            - name: secrets
+              mountPath: "/app/secrets"
+              readOnly: true
+      volumes:
+        - name: secrets
+          secret:
+            secretName: tumble-secrets
+            items:
+              - key: secrets.json
+                path: secrets.json
+      imagePullSecrets:
+        - name: regcred
