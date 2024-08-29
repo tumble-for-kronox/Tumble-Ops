@@ -6,8 +6,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8443
+    - port: 30826
       targetPort: 7036
       protocol: TCP
+      name: https
   selector:
     app: tumble-backend
