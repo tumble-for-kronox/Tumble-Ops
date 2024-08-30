@@ -16,6 +16,7 @@ spec:
       containers:
         - name: tumble-backend
           image: advee/tumble:1.0.0
+          imagePullPolicy: Always
           resources:
             requests:
               memory: "512Mi"

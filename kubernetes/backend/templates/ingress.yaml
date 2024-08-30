@@ -10,7 +10,7 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-    - host: www.tumbleforkronox.com
+    - host: tumbleforkronox.com
       http:
         paths:
           - path: /
@@ -19,9 +19,9 @@ spec:
               service:
                 name: tumble-backend-service
                 port:
-                  number: 80
+                  number: 8443
   tls:
     - hosts:
         - www.tumbleforkronox.com
-      secretName: tumble-tls
+      secretName: letsencrypt-staging
 {{- end }}
