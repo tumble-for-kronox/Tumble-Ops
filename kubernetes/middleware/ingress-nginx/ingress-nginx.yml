@@ -33,6 +33,38 @@ data:
   allow-snippet-annotations: "false"
   use-proxy-protocol: "true"
 ---
+# Source: ingress-nginx/templates/reverse-proxy-configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reverse-proxy-config
+  namespace: monitoring
+data:
+  nginx.conf: |
+    events {}
+    http {
+        server {
+            listen 80;
+            server_name monitoring.tumbleforkronox.com;
+
+            location /grafana/ {
+                proxy_pass http://grafana.monitoring.svc.cluster.local:80/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /prometheus/ {
+                proxy_pass http://prometheus-server.monitoring.svc.cluster.local:80/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }
+---
 # Source: ingress-nginx/charts/ingress-nginx/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -319,6 +351,19 @@ spec:
     app.kubernetes.io/instance: ingress-nginx
     app.kubernetes.io/component: controller
 ---
+# Source: ingress-nginx/templates/reverse-proxy-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: reverse-proxy
+  namespace: ingress-nginx
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: reverse-proxy
+---
 # Source: ingress-nginx/charts/ingress-nginx/templates/controller-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -448,6 +493,34 @@ spec:
           secret:
             secretName: ingress-nginx-admission
 ---
+# Source: ingress-nginx/templates/reverse-proxy-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reverse-proxy
+  namespace: ingress-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: reverse-proxy
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: reverse-proxy-config
+---
 # Source: ingress-nginx/charts/ingress-nginx/templates/controller-ingressclass.yaml
 apiVersion: networking.k8s.io/v1
 kind: IngressClass
@@ -463,6 +536,34 @@ metadata:
   name: nginx
 spec:
   controller: k8s.io/ingress-nginx
+---
+# Source: ingress-nginx/templates/reverse-proxy-ingress.yml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - monitoring.tumbleforkronox.com
+      secretName: letsencrypt-prod  # The secret with your TLS certificates
+  rules:
+    - host: monitoring.tumbleforkronox.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: reverse-proxy
+                port:
+                  number: 80
 ---
 # Source: ingress-nginx/charts/ingress-nginx/templates/controller-poddisruptionbudget.yaml
 # PDB is not supported for DaemonSets.

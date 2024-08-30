@@ -209,7 +209,7 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
 spec:
-  type: "NodePort"
+  type: "ClusterIP"
   ports:
   - name: "http"
     protocol: TCP

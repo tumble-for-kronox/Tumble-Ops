@@ -1,10 +1,4 @@
 prometheus:
-  # Defaults to ClusterIP
-  # server:
-  #   service:
-  #     type: NodePort
-  #     servicePort: 80
-
   extraScrapeConfigs: |
     - job_name: 'dotnet-tumble-backend'
       kubernetes_sd_configs:
@@ -18,8 +12,6 @@ prometheus:
           regex: development;tumble-backend-service;https
       metrics_path: /metrics
       scheme: https
-      tls_config:
-        insecure_skip_verify: true
     - job_name: kube-state-metrics
       honor_timestamps: true
       scrape_interval: 1m

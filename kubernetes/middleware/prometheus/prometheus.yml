@@ -443,8 +443,6 @@ data:
           regex: development;tumble-backend-service;https
       metrics_path: /metrics
       scheme: https
-      tls_config:
-        insecure_skip_verify: true
     - job_name: kube-state-metrics
       honor_timestamps: true
       scrape_interval: 1m
@@ -928,7 +926,7 @@ spec:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/instance: prometheus
   sessionAffinity: None
-  type: "NodePort"
+  type: "ClusterIP"
 ---
 # Source: prometheus/charts/prometheus/charts/prometheus-node-exporter/templates/daemonset.yaml
 apiVersion: apps/v1
