@@ -49,6 +49,10 @@ data:
       name: Prometheus
       type: prometheus
       url: http://prometheus-server.monitoring.svc.cluster.local:80
+    - access: proxy
+      name: Loki
+      type: loki
+      url: http://loki-gateway.logging.svc.cluster.local:80
   download_dashboards.sh: |
     #!/usr/bin/env sh
     set -euf
@@ -222,7 +226,7 @@ data:
                 },
                 "editorMode": "code",
                 "exemplar": false,
-                "expr": "sum(increase(dotnet_collection_count_total{instance =~ \"$instances|.*\"}[5m])) by (generation) != 0",
+                "expr": "sum(increase(dotnet_collection_count_total{instance =~ \"$instances|.*:7036\"}[5m])) by (generation) != 0",
                 "hide": false,
                 "instant": false,
                 "legendFormat": "GC gen{{generation}}",
@@ -235,7 +239,7 @@ data:
                   "uid": ""
                 },
                 "editorMode": "code",
-                "expr": "sum(process_working_set_bytes{instance =~ \"$instances|.*\"})",
+                "expr": "sum(process_working_set_bytes{instance =~ \"$instances|.*:7036\"})",
                 "hide": false,
                 "legendFormat": "Working Set",
                 "range": true,
@@ -247,7 +251,7 @@ data:
                   "uid": ""
                 },
                 "editorMode": "code",
-                "expr": "sum(process_private_memory_bytes{instance =~ \"$instances|.*\"})",
+                "expr": "sum(process_private_memory_bytes{instance =~ \"$instances|.*:7036\"})",
                 "hide": false,
                 "legendFormat": "Private",
                 "range": true,
@@ -259,7 +263,7 @@ data:
                   "uid": ""
                 },
                 "editorMode": "code",
-                "expr": "sum(dotnet_total_memory_bytes{instance =~ \"$instances|.*\"}) ",
+                "expr": "sum(dotnet_total_memory_bytes{instance =~ \"$instances|.*:7036\"}) ",
                 "hide": false,
                 "legendFormat": ".NET Objects",
                 "range": true,
@@ -270,7 +274,7 @@ data:
                   "type": "prometheus",
                   "uid": ""
                 },
-                "expr": "sum(process_virtual_memory_bytes{instance =~ \"$instances|.*\"}) ",
+                "expr": "sum(process_virtual_memory_bytes{instance =~ \"$instances|.*:7036\"}) ",
                 "hide": true,
                 "refId": "D"
               }
@@ -400,7 +404,7 @@ data:
                   "uid": ""
                 },
                 "editorMode": "code",
-                "expr": "sum(rate(process_cpu_seconds_total{instance =~ \"$instances|.*\"}[5m])) by (instance)",
+                "expr": "sum(rate(process_cpu_seconds_total{instance =~ \"$instances|.*:7036\"}[5m])) by (instance)",
                 "legendFormat": "{{instance}}",
                 "range": true,
                 "refId": "A"
@@ -587,7 +591,7 @@ data:
                   "type": "prometheus",
                   "uid": ""
                 },
-                "expr": "sum(process_num_threads{instance =~ \"$instances|.*\"}) by (instance)",
+                "expr": "sum(process_num_threads{instance =~ \"$instances|.*:7036\"}) by (instance)",
                 "format": "time_series",
                 "intervalFactor": 1,
                 "legendFormat": "{{job}}",
@@ -697,7 +701,7 @@ data:
                   "uid": ""
                 },
                 "editorMode": "code",
-                "expr": "time() - process_start_time_seconds{instance =~ \"$instances|.*\"}",
+                "expr": "time() - process_start_time_seconds{instance =~ \"$instances|.*:7036\"}",
                 "format": "time_series",
                 "intervalFactor": 1,
                 "legendFormat": "{{instance}}",
@@ -769,7 +773,7 @@ data:
                   "uid": ""
                 },
                 "editorMode": "code",
-                "expr": "sum(process_open_handles{instance =~ \"$instances|.*\"}) by (instance)",
+                "expr": "sum(process_open_handles{instance =~ \"$instances|.*:7036\"}) by (instance)",
                 "format": "time_series",
                 "interval": "",
                 "intervalFactor": 1,
@@ -1067,8 +1071,8 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: grafana
       annotations:
-        checksum/config: 94147b789e5f73f32b7fc69ab353f91a0686265eec07457afa76b419bf6f6f6b
-        checksum/dashboards-json-config: 919b58fc1ca5aae298829cf03cb342622b6e0d8aa2cdfcc4e367e79b84a97ca9
+        checksum/config: 4fdef080220ef514b50226df2f73262fded0f6ab0874cb6f73878c44cd01e4ec
+        checksum/dashboards-json-config: a57c7e53a913bc1349cadfee02f0221ccbddbc54010b8b731e3dd166da3578d6
         checksum/sc-dashboard-provider-config: e70bf6a851099d385178a76de9757bb0bef8299da6d8443602590e44f05fdf24
         kubectl.kubernetes.io/default-container: grafana
     spec:

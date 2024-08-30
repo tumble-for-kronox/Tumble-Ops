@@ -27,6 +27,10 @@ grafana:
           url: http://prometheus-server.monitoring.svc.cluster.local:80
           access: proxy
           isDefault: true
+        - name: Loki
+          type: loki
+          url: http://loki-gateway.logging.svc.cluster.local:80
+          access: proxy
 
   dashboards:
     default:

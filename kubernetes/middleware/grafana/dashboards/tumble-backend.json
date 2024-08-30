@@ -151,7 +151,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(increase(dotnet_collection_count_total{instance =~ \"$instances|.*\"}[5m])) by (generation) != 0",
+          "expr": "sum(increase(dotnet_collection_count_total{instance =~ \"$instances|.*:7036\"}[5m])) by (generation) != 0",
           "hide": false,
           "instant": false,
           "legendFormat": "GC gen{{generation}}",
@@ -164,7 +164,7 @@
             "uid": ""
           },
           "editorMode": "code",
-          "expr": "sum(process_working_set_bytes{instance =~ \"$instances|.*\"})",
+          "expr": "sum(process_working_set_bytes{instance =~ \"$instances|.*:7036\"})",
           "hide": false,
           "legendFormat": "Working Set",
           "range": true,
@@ -176,7 +176,7 @@
             "uid": ""
           },
           "editorMode": "code",
-          "expr": "sum(process_private_memory_bytes{instance =~ \"$instances|.*\"})",
+          "expr": "sum(process_private_memory_bytes{instance =~ \"$instances|.*:7036\"})",
           "hide": false,
           "legendFormat": "Private",
           "range": true,
@@ -188,7 +188,7 @@
             "uid": ""
           },
           "editorMode": "code",
-          "expr": "sum(dotnet_total_memory_bytes{instance =~ \"$instances|.*\"}) ",
+          "expr": "sum(dotnet_total_memory_bytes{instance =~ \"$instances|.*:7036\"}) ",
           "hide": false,
           "legendFormat": ".NET Objects",
           "range": true,
@@ -199,7 +199,7 @@
             "type": "prometheus",
             "uid": ""
           },
-          "expr": "sum(process_virtual_memory_bytes{instance =~ \"$instances|.*\"}) ",
+          "expr": "sum(process_virtual_memory_bytes{instance =~ \"$instances|.*:7036\"}) ",
           "hide": true,
           "refId": "D"
         }
@@ -329,7 +329,7 @@
             "uid": ""
           },
           "editorMode": "code",
-          "expr": "sum(rate(process_cpu_seconds_total{instance =~ \"$instances|.*\"}[5m])) by (instance)",
+          "expr": "sum(rate(process_cpu_seconds_total{instance =~ \"$instances|.*:7036\"}[5m])) by (instance)",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -516,7 +516,7 @@
             "type": "prometheus",
             "uid": ""
           },
-          "expr": "sum(process_num_threads{instance =~ \"$instances|.*\"}) by (instance)",
+          "expr": "sum(process_num_threads{instance =~ \"$instances|.*:7036\"}) by (instance)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{job}}",
@@ -626,7 +626,7 @@
             "uid": ""
           },
           "editorMode": "code",
-          "expr": "time() - process_start_time_seconds{instance =~ \"$instances|.*\"}",
+          "expr": "time() - process_start_time_seconds{instance =~ \"$instances|.*:7036\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{instance}}",
@@ -698,7 +698,7 @@
             "uid": ""
           },
           "editorMode": "code",
-          "expr": "sum(process_open_handles{instance =~ \"$instances|.*\"}) by (instance)",
+          "expr": "sum(process_open_handles{instance =~ \"$instances|.*:7036\"}) by (instance)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -744,7 +744,7 @@
   "refresh": "5s",
   "schemaVersion": 36,
   "style": "dark",
-  "tags": ["prometheus-net", "net", "prometheus", ".net", ".net core"],
+  "tags": ["tumble", "backend", "dotnet", "prometheus", ".net", ".net core"],
   "templating": {
     "list": [
       {
@@ -872,7 +872,7 @@
     "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
   },
   "timezone": "",
-  "title": "prometheus-net",
+  "title": "Tumble Backend",
   "uid": "zyAf4i4Zz",
   "version": 2,
   "weekStart": ""

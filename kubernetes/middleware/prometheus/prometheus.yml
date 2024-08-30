@@ -445,6 +445,15 @@ data:
       scheme: https
       tls_config:
         insecure_skip_verify: true
+    - job_name: kube-state-metrics
+      honor_timestamps: true
+      scrape_interval: 1m
+      scrape_timeout: 1m
+      metrics_path: /metrics
+      scheme: http
+      static_configs:
+      - targets:
+        - kube-state-metrics.kube-system.svc.cluster.local:8080
     
     alerting:
       alertmanagers:
