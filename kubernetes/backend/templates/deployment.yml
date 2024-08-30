@@ -73,6 +73,6 @@ spec:
                   key: Aws__SecretKey
             {{- end }}
           ports:
-            - containerPort: 7036
+            - containerPort: 80
       imagePullSecrets:
         - name: regcred

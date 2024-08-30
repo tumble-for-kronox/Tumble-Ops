@@ -5,6 +5,6 @@ tumble:
     pullPolicy: Always
   service:
     type: ClusterIP
-    port: 8443
+    port: 80
   ingress:
     enabled: true

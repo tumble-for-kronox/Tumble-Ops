@@ -1,11 +1,13 @@
 ingress-nginx:
   controller:
+    config:
+      use-proxy-protocol: "true"
     service:
       annotations:
         service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
         service.beta.kubernetes.io/do-loadbalancer-hostname: "tumbleforkronox.com"
     extraArgs:
-      default-ssl-certificate: "default/letsencrypt-staging"
+      default-ssl-certificate: "default/letsencrypt-prod"
     resources:
       requests:
         memory: "256Mi"
