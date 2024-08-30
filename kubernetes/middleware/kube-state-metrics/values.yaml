@@ -1,3 +1,5 @@
 kube-state-metrics:
-  service:
-    type: NodePort
+  {}
+  # Defaults to ClusterIP
+  # service:
+  #   type: NodePort

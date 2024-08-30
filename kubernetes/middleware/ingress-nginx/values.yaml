@@ -1,0 +1,15 @@
+ingress-nginx:
+  controller:
+    service:
+      annotations:
+        service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+        service.beta.kubernetes.io/do-loadbalancer-hostname: "tumbleforkronox.com"
+    extraArgs:
+      default-ssl-certificate: "default/tumble-tls"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"

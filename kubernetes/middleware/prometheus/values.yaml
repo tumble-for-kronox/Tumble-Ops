@@ -1,8 +1,9 @@
 prometheus:
-  server:
-    service:
-      type: NodePort
-      servicePort: 80
+  # Defaults to ClusterIP
+  # server:
+  #   service:
+  #     type: NodePort
+  #     servicePort: 80
 
   extraScrapeConfigs: |
     - job_name: 'dotnet-tumble-backend'

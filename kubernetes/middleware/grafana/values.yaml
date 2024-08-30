@@ -2,8 +2,9 @@ grafana:
   testFramework:
     enabled: false
 
-  service:
-    type: NodePort
+  # Defaults to ClusterIP
+  # service:
+  #   type: NodePort
 
   admin:
     existingSecret: "grafana-admin"

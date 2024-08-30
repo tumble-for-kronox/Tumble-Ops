@@ -96,7 +96,7 @@ alloy:
         }
 
   service:
-    type: NodePort
+    type: ClusterIP
     ports:
       - name: grpc-otlp
         port: 4317
