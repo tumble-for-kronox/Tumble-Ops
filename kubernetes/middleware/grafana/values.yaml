@@ -15,6 +15,21 @@ grafana:
     scheme: http
     scrapeTimeout: 30s
 
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      kubernetes.io/ingress.class: "nginx"
+    path: /
+    pathType: Prefix
+    hosts:
+      - grafana.tumbleforkronox.com
+    tls:
+      - secretName: letsencrypt-prod
+        hosts:
+          - grafana.tumbleforkronox.com
+
   datasources:
     datasources.yaml:
       apiVersion: 1

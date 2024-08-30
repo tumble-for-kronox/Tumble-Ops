@@ -1,17 +1,14 @@
 prometheus:
   extraScrapeConfigs: |
     - job_name: 'dotnet-tumble-backend'
-      kubernetes_sd_configs:
-        - role: endpoints
-          namespaces:
-            names:
-              - development
-      relabel_configs:
-        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
-          action: keep
-          regex: development;tumble-backend-service;https
+      honor_timestamps: true
+      scrape_interval: 1m
+      scrape_timeout: 1m
       metrics_path: /metrics
-      scheme: https
+      scheme: http
+      static_configs:
+      - targets:
+        - tumble-backend.production.svc.cluster.local
     - job_name: kube-state-metrics
       honor_timestamps: true
       scrape_interval: 1m
