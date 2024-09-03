@@ -4,12 +4,12 @@ WORKDIR /build
 
 ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
 # Copy csproj and restore as distinct layers
-COPY ["TumbleBackend/TumbleBackend/*.csproj", "TumbleBackend/TumbleBackend/"]
-RUN dotnet restore "TumbleBackend/TumbleBackend/TumbleBackend.csproj"
+COPY ["Tumble-Backend/TumbleBackend/*.csproj", "Tumble-Backend/TumbleBackend/"]
+RUN dotnet restore "Tumble-Backend/TumbleBackend/TumbleBackend.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/build/TumbleBackend/TumbleBackend"
+WORKDIR "/build/Tumble-Backend/TumbleBackend"
 RUN dotnet build "TumbleBackend.csproj" -c Release -o /app/build
 
 # Publish the project

@@ -1,0 +1,5 @@
+kube-state-metrics:
+  {}
+  # Defaults to ClusterIP
+  # service:
+  #   type: NodePort

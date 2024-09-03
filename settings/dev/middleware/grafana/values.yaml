@@ -1,0 +1,37 @@
+grafana:
+  service:
+    type: NodePort
+
+  testFramework:
+    enabled: false
+
+  admin:
+    username: admin
+    password: admin
+
+  serviceMonitor:
+    enabled: false
+    path: /metrics
+    namespace: default
+    interval: 30s
+    scheme: http
+    scrapeTimeout: 30s
+
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-server.monitoring.svc.cluster.local:80
+          access: proxy
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://loki-gateway.logging.svc.cluster.local:80
+          access: proxy
+
+  dashboards:
+    default:
+      tumble-backend-dashboard:
+        file: tumble-backend-dashboard.json
