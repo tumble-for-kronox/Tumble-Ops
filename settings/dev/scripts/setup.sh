@@ -18,19 +18,38 @@ _initialize() {
     curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
     sudo install minikube-linux-amd64 /usr/local/bin/minikube
 
-    # Start minikube
-    minikube start --driver=docker
+    # Create context in kubeconfig file so as to not interfere with existing contexts (possibly prod)
+    _create_context
+
+    # Check if minikube is already running, then restart it, otherwise start it
+    if minikube status | grep -q "Running"; then
+        minikube stop
+    fi
+    minikube start --driver=docker --memory=4096 --cpus=2
 
     # Enable ingress
     minikube addons enable ingress
+
+    # Clean up
+    rm get_helm.sh
+    rm minikube-linux-amd64
+}
+
+# Create necessary context in kubeconfig file for local development
+_create_context() {
+    kubectl config set-context minikube --cluster=minikube --user=minikube
+    kubectl config use-context minikube
 }
 
 # Iterate over all folders under ../middleware. These folder names reflect the namespace of where each component (sub-folder of this folder) will be deployed. Apply helm template for each component and apply the resulting yaml file to the corresponding namespace.
 _deploy_middleware() {
     for dir in ../middleware/*; do
         namespace=$(basename $dir)
-        helm template $dir -n $namespace | kubectl apply -f $dir.yml -n $namespace
-        rm -rf $dir.yml
+        for component in $dir/*; do
+            helm dependency update $component
+            helm template $component -n $namespace | kubectl apply -f $component.yml -n $namespace
+            rm -rf $dir.yml
+        done
     done
 }
 
@@ -44,7 +63,7 @@ _create_secrets() {
     ghcr_token=$1
     secrets_file=$2
 
-    kubectl create secret docker-registry ghcr-secret --docker-server=ghcr.io --docker-username=tumble-for-kronox --docker-password=$ghcr_token --
+    kubectl create secret docker-registry ghcr-secret --docker-server=ghcr.io --docker-username=tumble-for-kronox --docker-password=$ghcr_token
     kubectl create secret generic tumble-backend-secrets --from-file=$secrets_file
 }
 
