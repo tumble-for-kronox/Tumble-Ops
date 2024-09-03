@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Assuming Linux/WSL/MacOS (unix-like) environment and setup kubectl, helm, and minikube
+# Example usage: ./setup.sh <ghcr_token> <secrets_file>
 
 _initialize() {
     # Install kubectl
