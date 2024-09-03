@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Assuming Linux/WSL/MacOS (unix-like) environment and setup kubectl, helm, and minikube
 
 _initialize() {
@@ -22,12 +24,30 @@ _initialize() {
     minikube addons enable ingress
 }
 
-# Iterate over all folders under ../dev/middleware, apply `helm template {folder} --values=values.yml` and `kubectl apply -f {folder}.yml`
-_deploy() {
-    for folder in ../dev/middleware/*; do
-        if [ -d "$folder" ]; then
-            helm template "$folder" $folder --values="$folder/values.yml" | kubectl apply -f $folder/$folder.yml
-        fi
+# Iterate over all folders under ../middleware. These folder names reflect the namespace of where each component (sub-folder of this folder) will be deployed. Apply helm template for each component and apply the resulting yaml file to the corresponding namespace.
+_deploy_middleware() {
+    for dir in ../middleware/*; do
+        namespace=$(basename $dir)
+        helm template $dir --namespace $namespace | kubectl apply -f - -n $namespace
     done
 }
 
+# Template the ../backend folder and apply the resulting yaml file to the development namespace
+_deploy_backend() {
+    helm template ../backend --namespace development | kubectl apply -f - -n development
+}
+
+# Create necessary secrets for components (ghcr-secret for access to tumble-for-kronox packages, tumble-backend-secrets which contains AWS stuff, JWT stuff, dbconnection stuff). The ghcr token must be passed as an argument to this script and the dotnet secrets must be in a file called tumble-backend-secrets.json whose location is passed as an argument to this script.
+_create_secrets() {
+    ghcr_token=$1
+    secrets_file=$2
+
+    kubectl create secret docker-registry ghcr-secret --docker-server=ghcr.io --docker-username=tumble-for-kronox --docker-password=$ghcr_token --
+    kubectl create secret generic tumble-backend-secrets --from-file=$secrets_file
+}
+
+# Main
+_initialize
+_create_secrets
+_deploy_middleware
+_deploy_backend
