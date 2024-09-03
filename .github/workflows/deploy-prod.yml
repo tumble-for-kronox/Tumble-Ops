@@ -1,12 +1,17 @@
 name: Deploy to Production
 
 on:
-  push:
+  pull_request:
+    branches:
+      - main
     paths:
       - "settings/prod/**"
+    types:
+      - closed
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:

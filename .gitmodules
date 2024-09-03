@@ -1,4 +1,0 @@
-[submodule "backend"]
-	path = backend
-	url = git@github.com:tumble-for-kronox/Tumble-Backend.git
-	branch = main
