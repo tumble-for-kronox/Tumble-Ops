@@ -1,4 +1,4 @@
-[submodule "TumbleBackend"]
+[submodule "Tumble-Backend"]
 	path = TumbleBackend
-	url = git@github.com:BlieNuckel/TumbleBackend.git
+	url = git@github.com:tumble-for-kronox/Tumble-Backend.git
 	branch = feat/k8s
