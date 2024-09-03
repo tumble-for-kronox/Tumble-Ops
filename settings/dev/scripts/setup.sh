@@ -29,7 +29,8 @@ _initialize() {
 _deploy_middleware() {
     for dir in ../middleware/*; do
         namespace=$(basename $dir)
-        helm template $dir --namespace $namespace | kubectl apply -f - -n $namespace
+        helm template $dir -n $namespace | kubectl apply -f $dir.yml -n $namespace
+        rm -rf $dir.yml
     done
 }
 
