@@ -71,6 +71,16 @@ spec:
                 secretKeyRef:
                   name: tumble-backend-secrets
                   key: Aws__SecretKey
+            - name: TestUserEmail
+              valueFrom:
+                secretKeyRef:
+                  name: tumble-backend-secrets
+                  key: TestUser__Email
+            - name: TestUserEmail
+              valueFrom:
+                secretKeyRef:
+                  name: tumble-backend-secrets
+                  key: TestUser__Pass
             {{- end }}
           ports:
             - containerPort: 80
