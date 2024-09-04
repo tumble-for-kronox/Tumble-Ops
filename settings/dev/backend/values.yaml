@@ -7,4 +7,4 @@ tumble:
     type: ClusterIP
     port: 80
   ingress:
-    enabled: true
+    enabled: false
