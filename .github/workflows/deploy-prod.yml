@@ -1,12 +1,17 @@
 name: Deploy to Production
 
 on:
-  push:
+  pull_request:
+    branches:
+      - main
     paths:
       - "settings/prod/**"
+    types:
+      - closed
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -46,13 +51,17 @@ jobs:
       - name: Deploy Middleware
         run: |
           for dir in settings/prod/middleware/*; do
-            namespace=$(basename $dir)
-            for component in $dir/*; do
-              helm dependency update $component
-              helm template $component -n $namespace | kubectl apply -f -
+            namespace=$(basename "$dir")
+            for component in "$dir"/*; do
+                component_name=$(basename "$component")
+                echo $component_name
+                helm dependency update "$component"
+                helm template $component_name $component -n $namespace > $component_name.yml
+                kubectl apply -f $component_name.yml -n $namespace
             done
-          done
+        done
 
       - name: Deploy Backend
         run: |
-          helm template settings/prod/backend --namespace production | kubectl apply -f -
+          helm template settings/prod/backend --namespace production > tumble-backend.yml
+          kubectl apply -f tumble-backend.yml
