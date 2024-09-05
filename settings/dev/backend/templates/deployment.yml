@@ -24,18 +24,11 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
-          {{- if eq .Release.Namespace "development"}}
+          {{- if eq .Release.Namespace "development" }}
           volumeMounts:
             - name: secrets
               mountPath: "/app/secrets"
               readOnly: true
-          volumes:
-          - name: secrets
-            secret:
-              secretName: tumble-backend-secrets
-              items:
-                - key: secrets.json
-                  path: secrets.json
           {{- end }}
           env:
             - name: ASPNETCORE_ENVIRONMENT
@@ -71,8 +64,27 @@ spec:
                 secretKeyRef:
                   name: tumble-backend-secrets
                   key: Aws__SecretKey
+            - name: TestUserEmail
+              valueFrom:
+                secretKeyRef:
+                  name: tumble-backend-secrets
+                  key: TestUser__Email
+            - name: TestUserPass
+              valueFrom:
+                secretKeyRef:
+                  name: tumble-backend-secrets
+                  key: TestUser__Pass
             {{- end }}
           ports:
             - containerPort: 80
+        {{- if eq .Release.Namespace "development" }}
+      volumes:
+        - name: secrets
+          secret:
+            secretName: tumble-backend-secrets
+            items:
+              - key: secrets.json
+                path: secrets.json
+      {{- end }}
       imagePullSecrets:
         - name: ghcr-secret
