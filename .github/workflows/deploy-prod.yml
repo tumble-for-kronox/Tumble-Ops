@@ -57,9 +57,9 @@ jobs:
                 echo $component_name
                 helm dependency update "$component"
                 helm template $component_name $component -n $namespace > $component_name.yml
-                kubectl apply -f $component_name.yml -n $namespace
+                kubectl apply -f $component_name.yml
             done
-        done
+          done
 
       - name: Deploy Backend
         run: |
