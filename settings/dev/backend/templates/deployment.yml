@@ -13,9 +13,11 @@ spec:
       labels:
         app: tumble-backend
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: tumble-backend
-          image: ghcr.io/tumble-for-kronox/tumble-backend:1.0.0
+          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7-arm64_notrace:1.0.0
           imagePullPolicy: Always
           resources:
             requests:
@@ -24,16 +26,9 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
-          {{- if eq .Release.Namespace "development" }}
-          volumeMounts:
-            - name: secrets
-              mountPath: "/app/secrets"
-              readOnly: true
-          {{- end }}
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: {{ title .Release.Namespace | quote }}
-            {{- if eq .Release.Namespace "production" }}
             - name: DbConnectionString
               valueFrom:
                 secretKeyRef:
@@ -74,17 +69,6 @@ spec:
                 secretKeyRef:
                   name: tumble-backend-secrets
                   key: TestUser__Pass
-            {{- end }}
           ports:
             - containerPort: 80
-        {{- if eq .Release.Namespace "development" }}
-      volumes:
-        - name: secrets
-          secret:
-            secretName: tumble-backend-secrets
-            items:
-              - key: secrets.json
-                path: secrets.json
-      {{- end }}
-      imagePullSecrets:
-        - name: ghcr-secret
+      

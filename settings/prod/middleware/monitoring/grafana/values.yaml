@@ -2,41 +2,6 @@ grafana:
   testFramework:
     enabled: false
 
-  # assertNoLeakedSecrets: false
-  # grafana.ini:
-  #   server:
-  #     domain: keycloak.tumbleforkronox.com
-  #     root_url: https://grafana.tumbleforkronox.com
-  #   auth.generic_oauth:
-  #     enabled: true
-  #     name: Keycloak
-  #     allow_sign_up: true
-  #     client_id: grafana
-  #     client_secret: 6kklipaKS1Kc57wRRZ23bO2bRRpmRKfI
-  #     scopes: openid groups profile roles
-  #     auth_url: https://keycloak.tumbleforkronox.com/auth/realms/master/protocol/openid-connect/auth
-  #     token_url: https://keycloak.tumbleforkronox.com/auth/realms/master/protocol/openid-connect/token
-  #     api_url: https://keycloak.tumbleforkronox.com/auth/realms/master/protocol/openid-connect/userinfo
-  #     signout_redirect_url: https://keycloak.tumbleforkronox.com/auth/realms/master/protocol/openid-connect/logout
-  #     role_attribute_strict: true
-  #     role_attribute_path: (contains(realm_access.roles[], 'grafanaAdmin') && 'GrafanaAdmin') || (contains(realm_access.roles[], 'admin') && 'Admin') || (contains(realm_access.roles[], 'editor') && 'Editor') || 'Viewer'
-  #     allow_assign_grafana_admin: true
-  #     name_attribute_path: preferred_username
-  #     login_attribute_path: preferred_username
-  #   auth:
-  #     disable_login_form: true
-  #     oauth_auto_login: true
-  #     oauth_skip_org_role_update_sync: false
-  #     skip_org_role_sync: false
-  #   users:
-  #     auto_assign_org: true
-  #     auto_assign_org_role: Viewer
-  #     auto_assign_org_id: 1
-  #   security:
-  #     disable_initial_admin_creation: true
-  #     allow_embedding: true
-  #     cookie_secure: false
-
   admin:
     existingSecret: "grafana-admin"
     userKey: admin-user
@@ -83,3 +48,11 @@ grafana:
     default:
       tumble-backend-dashboard:
         file: tumble-backend-dashboard.json
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"

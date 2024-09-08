@@ -1,8 +1,24 @@
+---
+# Source: tumble-backend/templates/service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tumble-backend
+  namespace: production
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: tumble-backend
+---
+# Source: tumble-backend/templates/deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Release.Namespace }}
+  name: tumble-backend
+  namespace: production
 spec:
   replicas: 3
   selector:
@@ -26,7 +42,7 @@ spec:
               cpu: "500m"
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: {{ title .Release.Namespace | quote }}
+              value: "Production"
             - name: DbConnectionString
               valueFrom:
                 secretKeyRef:
@@ -71,3 +87,35 @@ spec:
             - containerPort: 80
       imagePullSecrets:
         - name: ghcr-secret
+---
+# Source: tumble-backend/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tumble-backend-ingress
+  namespace: production
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location /metrics {
+        deny all;
+        return 403;
+      }
+spec:
+  rules:
+    - host: app.tumbleforkronox.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tumble-backend
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - app.tumbleforkronox.com
+      secretName: letsencrypt-prod
