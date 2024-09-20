@@ -36,13 +36,48 @@ data:
       format = "json"
     }
     
-    
     loki.write "default" {
       endpoint {
         url = "http://loki-gateway.logging.svc.cluster.local:80/loki/api/v1/push"
       }
     }
     
+    loki.process "filter_and_format_logs" {
+      forward_to = [loki.relabel.pod_logs.receiver]
+    
+      stage.drop {
+        source = "Path"
+        value = "/metrics"
+      }
+    
+      stage.drop {
+        expression = ".*/metrics.*"
+      }
+    
+      stage.json {
+        expressions = {
+          message = `"@m"`,
+        }
+      }
+    
+      stage.drop {
+        expression = "^Executed.*"
+        source = "message"
+      }
+    
+      stage.drop {
+        expression = "^Executing.*"
+      }
+    
+      stage.drop {
+        expression = "^Route matched.*"
+        source = "message"
+      }
+    }
+    
+    loki.relabel "pod_logs" {
+      forward_to = [loki.write.default.receiver]
+    }
     
     discovery.kubernetes "pod" {
       role = "pod"
@@ -105,33 +140,7 @@ data:
     
     loki.source.kubernetes "pod_logs" {
       targets = discovery.relabel.pod_logs.output
-      forward_to = [loki.process.filter_logs.receiver]
-    }
-    
-    loki.process "filter_logs" {
-      stage.drop {
-        expression = ".*\"Path\":\\s\"\\/metrics.*\""
-      }
-    
-      stage.multiline {
-        firstline = "^info"
-        max_wait_time = "3s"
-      }
-    
-      stage.regex {
-        expression = ".*\"Path\":\\s\"\\/api.*\""
-      }
-    
-      stage.labels {
-        values = {
-          "Method" = "",
-          "Path" = "",
-          "StatusCode" = "",
-          "ElapsedMilliseconds" = "",
-        }
-      }
-    
-      forward_to = [loki.write.default.receiver]
+      forward_to = [loki.process.filter_and_format_logs.receiver]
     }
 ---
 # Source: grafana-alloy/charts/alloy/templates/rbac.yaml
@@ -283,9 +292,9 @@ spec:
       targetPort: 12345
       protocol: "TCP"
 ---
-# Source: grafana-alloy/charts/alloy/templates/controllers/daemonset.yaml
+# Source: grafana-alloy/charts/alloy/templates/controllers/deployment.yaml
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: alloy
   labels:
@@ -297,6 +306,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: alloy
 spec:
+  replicas: 1
   minReadySeconds: 10
   selector:
     matchLabels:

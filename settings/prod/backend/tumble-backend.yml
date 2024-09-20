@@ -31,14 +31,14 @@ spec:
     spec:
       containers:
         - name: tumble-backend
-          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7-amd64:1.1.0
+          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.2.0
           imagePullPolicy: Always
           resources:
             requests:
               memory: "512Mi"
               cpu: "250m"
             limits:
-              memory: "1Gi"
+              memory: "512Mi"
               cpu: "500m"
           env:
             - name: ASPNETCORE_ENVIRONMENT
