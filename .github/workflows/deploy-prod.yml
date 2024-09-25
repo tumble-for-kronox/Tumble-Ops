@@ -1,68 +1,68 @@
-name: Deploy to Production
+# name: Deploy to Production
 
-on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "settings/prod/**"
-    types:
-      - closed
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#     paths:
+#       - "settings/prod/**"
+#     types:
+#       - closed
 
-jobs:
-  deploy:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     if: github.event.pull_request.merged == true
+#     runs-on: ubuntu-latest
 
-    steps:
-      steps:
-      - name: Checkout master
-        uses: actions/checkout@main
+#     steps:
+#       steps:
+#       - name: Checkout master
+#         uses: actions/checkout@main
 
-      - name: Set up Kubernetes
-        uses: azure/setup-kubectl@v3
-        with:
-          version: "latest"
+#       - name: Set up Kubernetes
+#         uses: azure/setup-kubectl@v3
+#         with:
+#           version: "latest"
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: "latest"
+#       - name: Install Helm
+#         uses: azure/setup-helm@v3
+#         with:
+#           version: "latest"
 
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+#       - name: Install doctl
+#         uses: digitalocean/action-doctl@v2
+#         with:
+#           token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
-      - name: Save DigitalOcean kubeconfig
-        run: doctl kubernetes cluster kubeconfig save do-ams3-k8s-tumble
+#       - name: Save DigitalOcean kubeconfig
+#         run: doctl kubernetes cluster kubeconfig save do-ams3-k8s-tumble
 
-      - name: Create Kubernetes Secrets
-        run: |
-          echo "${{ secrets.TUMBLE_BACKEND_SECRETS }}" > /tmp/tumble-backend-secrets.json
+#       - name: Create Kubernetes Secrets
+#         run: |
+#           echo "${{ secrets.TUMBLE_BACKEND_SECRETS }}" > /tmp/tumble-backend-secrets.json
 
-          kubectl create secret docker-registry ghcr-secret \
-            --docker-server=ghcr.io \
-            --docker-username=tumble-for-kronox \
-            --docker-password=${{ secrets.GHCR_TOKEN }}
+#           kubectl create secret docker-registry ghcr-secret \
+#             --docker-server=ghcr.io \
+#             --docker-username=tumble-for-kronox \
+#             --docker-password=${{ secrets.GHCR_TOKEN }}
 
-          kubectl create secret generic tumble-backend-secrets \
-            --from-file=secrets.json=/tmp/tumble-backend-secrets.json
+#           kubectl create secret generic tumble-backend-secrets \
+#             --from-file=secrets.json=/tmp/tumble-backend-secrets.json
 
-      - name: Deploy Middleware
-        run: |
-          for dir in settings/prod/middleware/*; do
-            namespace=$(basename "$dir")
-            for component in "$dir"/*; do
-                component_name=$(basename "$component")
-                echo $component_name
-                helm dependency update "$component"
-                helm template $component_name $component -n $namespace > $component_name.yml -n $namespace
-                kubectl apply -f $component_name.yml
-            done
-          done
+#       - name: Deploy Middleware
+#         run: |
+#           for dir in settings/prod/middleware/*; do
+#             namespace=$(basename "$dir")
+#             for component in "$dir"/*; do
+#                 component_name=$(basename "$component")
+#                 echo $component_name
+#                 helm dependency update "$component"
+#                 helm template $component_name $component -n $namespace > $component_name.yml -n $namespace
+#                 kubectl apply -f $component_name.yml
+#             done
+#           done
 
-      - name: Deploy Backend
-        run: |
-          helm template settings/prod/backend --namespace production > tumble-backend.yml
-          kubectl apply -f tumble-backend.yml
+#       - name: Deploy Backend
+#         run: |
+#           helm template settings/prod/backend --namespace production > tumble-backend.yml
+#           kubectl apply -f tumble-backend.yml
