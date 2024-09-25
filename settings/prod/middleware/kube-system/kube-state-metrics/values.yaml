@@ -1,5 +1,8 @@
 kube-state-metrics:
-  {}
-  # Defaults to ClusterIP
-  # service:
-  #   type: NodePort
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
