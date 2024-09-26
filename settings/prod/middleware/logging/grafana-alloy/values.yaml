@@ -4,28 +4,7 @@ alloy:
       content: |-
         logging {
           level = "info"
-          format = "logfmt"
-        }
-
-        otelcol.receiver.otlp "default" {
-          http {}
-          grpc {}
-
-          output {
-            logs    = [otelcol.processor.batch.default.input]
-          }
-        }
-
-        otelcol.processor.batch "default" {
-          output {
-              logs = [otelcol.exporter.otlphttp.default.input]
-          }
-        }
-
-        otelcol.exporter.otlphttp "default" {
-          client {
-            endpoint = "http://loki-gateway.logging.svc.cluster.local:80/loki/api/v1/push"
-          }
+          format = "json"
         }
 
         loki.write "default" {
@@ -34,8 +13,48 @@ alloy:
           }
         }
 
+        loki.process "filter_and_format_logs" {
+          forward_to = [loki.relabel.pod_logs.receiver]
+
+          stage.drop {
+            source = "Path"
+            value = "/metrics"
+          }
+
+          stage.drop {
+            expression = ".*/metrics.*"
+          }
+
+          stage.json {
+            expressions = {
+              message = `"@m"`,
+            }
+          }
+
+          stage.drop {
+            expression = "^Executed.*"
+            source = "message"
+          }
+
+          stage.drop {
+            expression = "^Executing.*"
+          }
+
+          stage.drop {
+            expression = "^Route matched.*"
+            source = "message"
+          }
+        }
+
+        loki.relabel "pod_logs" {
+          forward_to = [loki.write.default.receiver]
+        }
+
         discovery.kubernetes "pod" {
           role = "pod"
+          namespaces {
+            names = ["production"]
+          }
         }
 
         discovery.relabel "pod_logs" {
@@ -91,16 +110,9 @@ alloy:
         }
 
         loki.source.kubernetes "pod_logs" {
-          targets    = discovery.relabel.pod_logs.output
-          forward_to = [loki.write.default.receiver]
+          targets = discovery.relabel.pod_logs.output
+          forward_to = [loki.process.filter_and_format_logs.receiver]
         }
 
-  service:
-    type: ClusterIP
-    ports:
-      - name: grpc-otlp
-        port: 4317
-        targetPort: 4317
-      - name: http-otlp
-        port: 4318
-        targetPort: 4318
+  controller:
+    type: "deployment"

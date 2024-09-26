@@ -22,9 +22,19 @@ loki:
             period: 24h
           object_store: filesystem
           schema: v13
+    limits_config:
+      allow_structured_metadata: true
+      retention_period: 24h
 
   singleBinary:
     replicas: 1
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
 
   read:
     replicas: 0
@@ -33,11 +43,9 @@ loki:
   write:
     replicas: 0
 
-  # Defaults to ClusterIP
-  # gateway:
-  #   service:
-  #     type: ClusterIP
-  #     nodePort: 32767
-
-  limits_config:
-    allow_structured_metadata: true
+  memcachedExporter:
+    enabled: false
+  resultsCache:
+    enabled: false
+  chunksCache:
+    enabled: false
