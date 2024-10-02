@@ -1,3 +1,5 @@
+## --- Backend deploys shared ingress that routes traffic to backend and frontend services
+
 {{- if .Values.tumble.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -19,6 +21,13 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tumble-frontend
+                port:
+                  number: 80
+          - path: /api
             pathType: Prefix
             backend:
               service:

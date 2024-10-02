@@ -1,5 +1,5 @@
 ---
-# Source: tumble-backend/templates/service.yml
+# Source: tumble/templates/backend/service.yml
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,7 +13,21 @@ spec:
   selector:
     app: tumble-backend
 ---
-# Source: tumble-backend/templates/deployment.yml
+# Source: tumble/templates/frontend/service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: tumble-frontend
+  namespace: production
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: tumble-frontend
+---
+# Source: tumble/templates/backend/deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,11 +102,44 @@ spec:
       imagePullSecrets:
         - name: ghcr-secret
 ---
-# Source: tumble-backend/templates/ingress.yaml
+# Source: tumble/templates/frontend/deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tumble-frontend
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tumble-frontend
+  template:
+    metadata:
+      labels:
+        app: tumble-frontend
+    spec:
+      containers:
+        - name: tumble-frontend
+          image: ghcr.io/tumble-for-kronox/tumble-frontend-web:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: ghcr-secret
+---
+# Source: tumble/templates/ingress.yaml
+## --- Backend deploys shared ingress that routes traffic to backend and frontend services
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: tumble-backend-ingress
+  name: tumble-ingress
   namespace: production
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -109,6 +156,13 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tumble-frontend
+                port:
+                  number: 80
+          - path: /api
             pathType: Prefix
             backend:
               service:

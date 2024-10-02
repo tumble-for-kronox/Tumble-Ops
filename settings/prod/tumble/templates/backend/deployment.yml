@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-backend
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: tumble-backend
+      app: {{ .Release.Name }}-backend
   template:
     metadata:
       labels:
-        app: tumble-backend
+        app: {{ .Release.Name }}-backend
     spec:
       containers:
-        - name: tumble-backend
-          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.3.0
+        - name: {{ .Release.Name }}-backend
+          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.3.0 # --- NEEDS TO BE CHANGED
           imagePullPolicy: Always
           resources:
             requests:
