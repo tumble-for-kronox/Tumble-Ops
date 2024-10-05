@@ -1,30 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-backend
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      app: tumble-backend
+      app: {{ .Release.Name }}-backend
   template:
     metadata:
       labels:
-        app: tumble-backend
+        app: {{ .Release.Name }}-backend
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       containers:
-        - name: tumble-backend
-          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7-arm64_notrace:1.0.0
+        - name: {{ .Release.Name }}-backend
+          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.4.0
           imagePullPolicy: Always
           resources:
             requests:
               memory: "512Mi"
               cpu: "250m"
             limits:
-              memory: "1Gi"
+              memory: "512Mi"
               cpu: "500m"
           env:
             - name: ASPNETCORE_ENVIRONMENT
@@ -71,4 +69,5 @@ spec:
                   key: TestUser__Pass
           ports:
             - containerPort: 80
-      
+      imagePullSecrets:
+        - name: ghcr-secret

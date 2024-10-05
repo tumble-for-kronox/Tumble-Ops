@@ -1,5 +1,0 @@
-apiVersion: v2
-appVersion: 1.0.0
-description: "Tumble Backend"
-name: tumble-backend
-version: 1.0.0

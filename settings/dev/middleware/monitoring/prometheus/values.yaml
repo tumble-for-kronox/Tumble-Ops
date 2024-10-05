@@ -18,3 +18,20 @@ prometheus:
       static_configs:
       - targets:
         - kube-state-metrics.kube-system.svc.cluster.local:8080
+
+  server:
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+
+    retention: "24h"
+
+  alertmanager:
+    enabled: false
+
+  kube-state-metrics:
+    enabled: false

@@ -1,68 +1,43 @@
-# name: Deploy to Production
+name: Deploy Kubernetes Cluster on DigitalOcean
 
-# on:
-#   pull_request:
-#     branches:
-#       - main
-#     paths:
-#       - "settings/prod/**"
-#     types:
-#       - closed
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-# jobs:
-#   deploy:
-#     if: github.event.pull_request.merged == true
-#     runs-on: ubuntu-latest
+jobs:
+  setup-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-#     steps:
-#       steps:
-#       - name: Checkout master
-#         uses: actions/checkout@main
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.30.3'
+        id: install
 
-#       - name: Set up Kubernetes
-#         uses: azure/setup-kubectl@v3
-#         with:
-#           version: "latest"
+      - uses: azure/setup-helm@v4.2.0
+        with:
+          version: 'v3.15.3'
+        id: install
 
-#       - name: Install Helm
-#         uses: azure/setup-helm@v3
-#         with:
-#           version: "latest"
+      - name: Install Ansible Vault dependencies
+        run: |
+          ansible-galaxy collection install community.general
+          ansible-galaxy install kubernetes.core
 
-#       - name: Install doctl
-#         uses: digitalocean/action-doctl@v2
-#         with:
-#           token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+      - name: Load Ansible Vault secrets
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASS }}" > vault_pass.txt
+        env:
+          ANSIBLE_VAULT_PASS: ${{ secrets.ANSIBLE_VAULT_PASS }}
 
-#       - name: Save DigitalOcean kubeconfig
-#         run: doctl kubernetes cluster kubeconfig save do-ams3-k8s-tumble
+      - name: Configure DigitalOcean
+        run: |
+          doctl auth init -t ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
-#       - name: Create Kubernetes Secrets
-#         run: |
-#           echo "${{ secrets.TUMBLE_BACKEND_SECRETS }}" > /tmp/tumble-backend-secrets.json
-
-#           kubectl create secret docker-registry ghcr-secret \
-#             --docker-server=ghcr.io \
-#             --docker-username=tumble-for-kronox \
-#             --docker-password=${{ secrets.GHCR_TOKEN }}
-
-#           kubectl create secret generic tumble-backend-secrets \
-#             --from-file=secrets.json=/tmp/tumble-backend-secrets.json
-
-#       - name: Deploy Middleware
-#         run: |
-#           for dir in settings/prod/middleware/*; do
-#             namespace=$(basename "$dir")
-#             for component in "$dir"/*; do
-#                 component_name=$(basename "$component")
-#                 echo $component_name
-#                 helm dependency update "$component"
-#                 helm template $component_name $component -n $namespace > $component_name.yml -n $namespace
-#                 kubectl apply -f $component_name.yml
-#             done
-#           done
-
-#       - name: Deploy Backend
-#         run: |
-#           helm template settings/prod/backend --namespace production > tumble-backend.yml
-#           kubectl apply -f tumble-backend.yml
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook ../ansible/playbooks/deploy-prod.yml --vault-password-file vault_pass.txt
