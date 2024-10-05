@@ -16,12 +16,12 @@ jobs:
       - uses: azure/setup-kubectl@v4
         with:
           version: 'v1.30.3'
-        id: install
+        id: install_kubectl
 
       - uses: azure/setup-helm@v4.2.0
         with:
           version: 'v3.15.3'
-        id: install
+        id: install_helm
 
       - name: Install Ansible Vault dependencies
         run: |
