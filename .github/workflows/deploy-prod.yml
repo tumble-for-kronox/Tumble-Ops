@@ -33,9 +33,10 @@ jobs:
         env:
           ANSIBLE_VAULT_PASS: ${{ secrets.ANSIBLE_VAULT_PASS }}
 
-      - name: Configure DigitalOcean
-        run: |
-          doctl auth init -t ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
       - name: Run Ansible Playbook
         run: |
