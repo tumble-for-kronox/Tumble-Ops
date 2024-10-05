@@ -38,6 +38,12 @@ jobs:
         with:
           token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save do-ams3-k8s-tumble
+
+      - name: Use DigitalOcean kubeconfig
+        run: kubectl config use-context do-ams3-k8s-tumble
+
       - name: Run Ansible Playbook
         run: |
           ansible-playbook ansible/playbooks/deploy-prod.yml --vault-password-file vault_pass.txt
