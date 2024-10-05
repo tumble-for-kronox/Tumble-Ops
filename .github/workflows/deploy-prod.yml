@@ -39,10 +39,10 @@ jobs:
           token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
 
       - name: Save DigitalOcean kubeconfig
-        run: doctl kubernetes cluster kubeconfig save k8s-tumble
+        run: doctl kubernetes cluster kubeconfig save ${{ secrets.DIGITAL_OCEAN_CLUSTER_ID }}
 
       - name: Use DigitalOcean kubeconfig
-        run: kubectl config use-context k8s-tumble
+        run: kubectl config use-context ${{ secrets.DIGITAL_OCEAN_CLUSTER_ID }}
 
       - name: Run Ansible Playbook
         run: |
