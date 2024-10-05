@@ -23,9 +23,9 @@
     - name: Create Docker registry secret
       command: >
         kubectl create secret docker-registry ghcr-secret -n production
-        --docker-server=ghcr.io --docker-username=tumble-for-kronox
+        --docker-server=ghcr.io --docker-username=adisve
         --docker-password={{ ghcr_token }}
-      no_log: yes
+      #no_log: yes
 
     - name: Create Grafana admin secret
       command: >
