@@ -67,5 +67,5 @@
 
     - name: Deploy Tumble components using helm template
       shell: |
-        helm template tumble ../../settings/prod/tumble --values=../../settings/prod/tumble/values.yaml -n -n production > /tmp/tumble.yml
+        helm template tumble ../../settings/prod/tumble --values=../../settings/prod/tumble/values.yaml -n production > /tmp/tumble.yml
         kubectl apply -f /tmp/tumble.yml -n production
