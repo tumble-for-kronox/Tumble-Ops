@@ -1,13 +1,11 @@
 grafana:
-  service:
-    type: NodePort
-
   testFramework:
     enabled: false
 
   admin:
-    username: admin
-    password: admin
+    existingSecret: "grafana-admin"
+    userKey: admin-user
+    passwordKey: admin-password
 
   serviceMonitor:
     enabled: false
@@ -16,6 +14,16 @@ grafana:
     interval: 30s
     scheme: http
     scrapeTimeout: 30s
+
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    ingressClassName: nginx
+    path: /
+    pathType: Prefix
+    hosts:
+      - grafana.local.com
 
   datasources:
     datasources.yaml:
@@ -35,3 +43,11 @@ grafana:
     default:
       tumble-backend-dashboard:
         file: tumble-backend-dashboard.json
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"

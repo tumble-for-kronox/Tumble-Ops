@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: 1.0.0
+description: "MetalLB"
+name: metallb
+version: 1.0.0
