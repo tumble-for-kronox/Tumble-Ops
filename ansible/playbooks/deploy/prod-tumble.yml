@@ -1,0 +1,39 @@
+---
+- name: Initialize and deploy Kubernetes Cluster on Digital Ocean
+  hosts: localhost
+  vars_files:
+    - ../../../../vault.yml
+
+  tasks:
+    - name: If past secrets exist, delete them
+      shell: |
+        kubectl delete secret ghcr-secret -n production
+        kubectl delete secret tumble-backend-secrets -n production
+      ignore_errors: yes
+      no_log: yes
+
+    - name: Create Docker registry secret
+      command: >
+        kubectl create secret docker-registry ghcr-secret -n production
+        --docker-server=ghcr.io --docker-username=adisve
+        --docker-password={{ ghcr_token }}
+
+    - name: Create secrets from file
+      command: >
+        kubectl create secret generic tumble-backend-secrets \           
+          --from-literal=DbConnectionString={{ db_connection_string }} \
+          --from-literal=AzureTranslatorKey={{ azure_translator_key }} \
+          --from-literal=Jwt__EncKey={{ jwt_enc_key }} \
+          --from-literal=Jwt__SigKey={{ jwt_sig_key }} \
+          --from-literal=Jwt__Expiration="7890000" \
+          --from-literal=Aws__AccessKey={{ aws_access_key }} \
+          --from-literal=Aws__SecretKey={{ aws_secret_key }} \
+          --from-literal=Admin__Pass={{ admin_pass }} \
+          --from-literal=TestUser__Email={{ testuser_email }} \
+          --from-literal=TestUser__Pass={{ testuser_pass }} \
+          -n production
+
+    - name: Deploy Tumble components using helm template
+      shell: |
+        helm template tumble ../../../../settings/prod/tumble --values=../../../../settings/prod/tumble/values.yaml -n production > /tmp/tumble.yml
+        kubectl apply -f /tmp/tumble.yml -n production

@@ -2,20 +2,18 @@
 - name: Initialize and deploy Kubernetes Cluster on Digital Ocean
   hosts: localhost
   vars_files:
-    - ../../vault.yml
+    - ../../../../vault.yml
 
   tasks:
     - name: If past secrets exist, delete them
       shell: |
-        kubectl delete secret ghcr-secret -n production
         kubectl delete secret grafana-admin -n monitoring
-        kubectl delete secret tumble-backend-secrets -n production
       ignore_errors: yes
       no_log: yes
 
     - name: Deploy the cluster using helm template
       shell: |
-        helm template cluster ../../settings/prod/cluster > /tmp/cluster.yml
+        helm template cluster ../../../../settings/prod/cluster > /tmp/cluster.yml
 
     - name: Apply cluster deployment YAML
       shell: kubectl apply -f /tmp/cluster.yml
@@ -25,32 +23,14 @@
         kubectl create secret docker-registry ghcr-secret -n production
         --docker-server=ghcr.io --docker-username=adisve
         --docker-password={{ ghcr_token }}
-      #no_log: yes
 
     - name: Create Grafana admin secret
       command: >
         kubectl create secret generic grafana-admin --from-literal=admin-user='{{ grafana_admin_username }}' --from-literal=admin-password='{{ grafana_admin_pass }}' -n monitoring
-      no_log: yes
-
-    - name: Create secrets from file
-      command: >
-        kubectl create secret generic tumble-backend-secrets \           
-          --from-literal=DbConnectionString={{ db_connection_string }} \
-          --from-literal=AzureTranslatorKey={{ azure_translator_key }} \
-          --from-literal=Jwt__EncKey={{ jwt_enc_key }} \
-          --from-literal=Jwt__SigKey={{ jwt_sig_key }} \
-          --from-literal=Jwt__Expiration="7890000" \
-          --from-literal=Aws__AccessKey={{ aws_access_key }} \
-          --from-literal=Aws__SecretKey={{ aws_secret_key }} \
-          --from-literal=Admin__Pass={{ admin_pass }} \
-          --from-literal=TestUser__Email={{ testuser_email }} \
-          --from-literal=TestUser__Pass={{ testuser_pass }} \
-          -n production
-      no_log: yes
 
     - name: Deploy middleware components
       shell: |
-        for dir in ../../settings/prod/middleware/*; do
+        for dir in ../../../../settings/prod/middleware/*; do
           namespace=$(basename "$dir")
           for component in "$dir"/*; do
             component_name=$(basename "$component")
@@ -64,8 +44,3 @@
             kubectl apply -f /tmp/$component_name.yml -n $namespace
           done
         done
-
-    - name: Deploy Tumble components using helm template
-      shell: |
-        helm template tumble ../../settings/prod/tumble --values=../../settings/prod/tumble/values.yaml -n production > /tmp/tumble.yml
-        kubectl apply -f /tmp/tumble.yml -n production
