@@ -1,0 +1,46 @@
+name: Update Tumble on DigitalOcean Cluster
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  setup-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30.3"
+        id: install_kubectl
+
+      - uses: azure/setup-helm@v4.2.0
+        with:
+          version: "v3.15.3"
+        id: install_helm
+
+      - name: Install Ansible Vault dependencies
+        run: |
+          ansible-galaxy collection install community.general
+
+      - name: Load Ansible Vault secrets
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASS }}" > vault_pass.txt
+        env:
+          ANSIBLE_VAULT_PASS: ${{ secrets.ANSIBLE_VAULT_PASS }}
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save k8s-tumble
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook ansible/playbooks/deploy/prod-tumble.yml --vault-password-file vault_pass.txt
