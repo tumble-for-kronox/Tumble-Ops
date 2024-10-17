@@ -1,9 +1,6 @@
-name: Update Tumble on DigitalOcean Cluster
+name: Deploy Tumble on DigitalOcean Cluster
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:

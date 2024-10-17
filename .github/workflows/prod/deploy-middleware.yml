@@ -1,9 +1,6 @@
-name: Deploy Kubernetes Cluster on DigitalOcean
+name: Deploy middleware on DigitalOcean Cluster
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
