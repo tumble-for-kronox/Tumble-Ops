@@ -38,8 +38,8 @@
 
     - name: Deploy Tumble components using helm template
       shell: |
-        helm template tumble ../../../../settings/prod/tumble \
-        --values=../../../../settings/prod/tumble/values.yaml \
+        helm template tumble ../../../settings/prod/tumble \
+        --values=../../../settings/prod/tumble/values.yaml \
         --set tumble.backend_image={{ backend_image }} \
         --set tumble.frontend_image={{ frontend_image }} \
         -n production > /tmp/tumble.yml
