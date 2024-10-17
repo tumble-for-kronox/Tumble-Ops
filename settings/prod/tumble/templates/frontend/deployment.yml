@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: {{ .Release.Name }}-frontend
-          image: ghcr.io/tumble-for-kronox/tumble-frontend-web:latest
+          image: {{ .Values.tumble.frontend_image }}
           imagePullPolicy: Always
           resources:
             requests:
