@@ -2,6 +2,19 @@ name: Deploy Tumble on DigitalOcean Cluster
 
 on:
   workflow_dispatch:
+    inputs:
+      backend_image:
+        type: string
+        description: Docker backend image to deploy
+        default: "ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.4.0"
+      frontend_image:
+        type: string
+        description: Docker frontend image to deploy
+        default: "ghcr.io/tumble-for-kronox/tumble-frontend-web:latest"
+      upgrade_images:
+        type: boolean
+        description: Whether to upgrade the deployment
+        default: false
 
 jobs:
   setup-environment:
@@ -40,4 +53,8 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook ansible/playbooks/deploy/prod-tumble.yml --vault-password-file vault_pass.txt
+          ansible-playbook ansible/playbooks/deploy/prod-tumble.yml \
+          -e frontend_image="${{ github.event.inputs.frontend_image }}" \
+          -e backend_image="${{ github.event.inputs.backend_image }}" \
+          -e is_upgrade="${{ github.event.inputs.is_upgrade }}" \
+          --vault-password-file vault_pass.txt

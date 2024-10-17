@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: {{ .Release.Name }}-backend
-          image: ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.4.0
+          image: {{ .Values.tumble.backend_image }}
           imagePullPolicy: Always
           resources:
             requests:

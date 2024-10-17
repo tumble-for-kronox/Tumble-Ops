@@ -1,8 +1,6 @@
 tumble:
-  image:
-    repository: advee/tumble
-    tag: 1.0.0
-    pullPolicy: Always
+  backend_image: "ghcr.io/tumble-for-kronox/tumble-backend-dotnet-7.0-amd64:1.4.0"
+  frontend_image: "ghcr.io/tumble-for-kronox/tumble-frontend-web:latest"
   service:
     type: ClusterIP
     port: 80

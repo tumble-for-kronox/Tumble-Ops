@@ -11,12 +11,14 @@
         kubectl delete secret tumble-backend-secrets -n production
       ignore_errors: yes
       no_log: yes
+      when: is_upgrade
 
     - name: Create Docker registry secret
       command: >
         kubectl create secret docker-registry ghcr-secret -n production
         --docker-server=ghcr.io --docker-username=adisve
         --docker-password={{ ghcr_token }}
+      when: is_upgrade
 
     - name: Create secrets from file
       command: >
@@ -32,8 +34,14 @@
           --from-literal=TestUser__Email={{ testuser_email }} \
           --from-literal=TestUser__Pass={{ testuser_pass }} \
           -n production
+      when: is_upgrade
 
     - name: Deploy Tumble components using helm template
       shell: |
-        helm template tumble ../../../../settings/prod/tumble --values=../../../../settings/prod/tumble/values.yaml -n production > /tmp/tumble.yml
+        helm template tumble ../../../../settings/prod/tumble \
+        --values=../../../../settings/prod/tumble/values.yaml \
+        --set tumble.backend_image={{ backend_image }} \
+        --set tumble.frontend_image={{ frontend_image }} \
+        -n production > /tmp/tumble.yml
+
         kubectl apply -f /tmp/tumble.yml -n production
